@@ -1,0 +1,111 @@
+<html layout:decorate="~{/common/layout}">
+<div layout:fragment="content">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+    <meta name="_csrf" th:content="${_csrf.token}">
+
+    <div class="team-list-area sub-cnt-area w100per rel zi2">
+        <div class="con w100per">
+            <h1 class="title-text lh120 tb tac wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">팀 목록</h1>
+            <div class="flex fdc wow fadeInUp" data-wow-delay="0.6s" data-wow-duration="0.6s">
+                <div class="table-type-1 table-type">
+                    <table>
+                        <thead>
+                        <tr>
+                            <th>번호</th>
+                            <th>팀명</th>
+                            <th>지역</th>
+                            <th>레벨</th>
+                            <th>생성일</th>
+                            <th>가입</th>
+                            <th>모집 인원</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="team, loop : ${teamList}">
+                            <td th:text="${loop.count}"></td>
+                            <td>
+                                <div class="team-name flex aic jcc f16 tm c777 lh140">
+                <span class="img-box w28 mr20">
+                    <img th:if="${team.profileImgUrl != null}" th:src="@{|/gen${team.profileImgUrl}|}"
+                         alt="Profile Image" style="width: 30px; height: 30px; border-radius: 50%;">
+                    <img th:unless="${team.profileImgUrl != null}" th:src="@{/img/emblem_img.svg}"
+                         alt="Default Image"></span>
+                                    <span th:text="${team.teamName}"></span>
+                                </div>
+                            </td>
+                            <td th:text="${team.area}"></td>
+                            <td th:text="${team.level}"></td>
+                            <td th:text="${#temporals.format(team.createdDate, 'yy-MM-dd HH:mm')}"></td>
+                            <td>
+<!--                                th:action="@{'/team/team_list/' + ${team.id}}" method="post"-->
+<!--                                <form>-->
+                                    <div class="btn-box inflex g8">
+                                        <button type="button" class="btn-type-4"
+                                                style="color: #fff; background-color: #0F46BC;"
+                                                th:if="${#lists.size(team.siteUsers) < 8}" th:id="'applyButton' + ${team.id}"
+                                                th:onclick="'applyBtn(\'' + ${team.id} + '\')'">가입하기
+<!--                                            th:onclick="'applyBtn(\''${vote.Id} + ')'"-->
+                                        </button>
+                                        <div th:if="${#lists.size(team.siteUsers) == 8}" class="btn-type-4"
+                                             style="color: #fff; background-color: #CCC; cursor: inherit;" disabled>모집마감
+                                        </div>
+                                    </div>
+<!--                                </form>-->
+                            </td>
+                            <td class="situation-box tac f16 tb lh140 type-1">
+                                <div th:text=" ${#lists.size(team.siteUsers)} + '/8'"></div>
+                            </td>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="btn-box-type-1 flex jcc">
+                    <a th:href="@{/team/team_create}" class="btn-type-1">팀 만들기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</html>
+<script>
+    function applyBtn(teamId) {
+
+        var csrfToken = $("meta[name='_csrf']").attr("content");
+        var csrfHeader = $("meta[name='_csrf_header']").attr("content");
+
+        if (confirm("팀에 가입하시겠습니까?")) {
+            $.ajax({
+                url: "/team/team_list/" + teamId,
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({}),
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader(csrfHeader, csrfToken);
+                },
+                success: function (data) {
+                    if (data == "팀 가입 성공") {
+                        alert("신청이 완료되었습니다.");
+                        window.location.href = "/";
+                        updateButton();
+                    }
+                },
+                error: function (error) {
+                    // 요청이 실패했을 때 실행되는 부분입니다.
+                    console.error("에러 발생: " + error);
+                }
+            })
+        }
+    }
+
+    function updateButton() {
+        // 버튼 업데이트 로직
+        var applicationButton = $(".btn-type-4");
+        applicationButton.text("신청 완료");
+        applicationButton.prop("disabled", true);  // 예시로 버튼 비활성화
+        applicationButton.css({"background-color": "#CCCCCC", "cursor": "not-allowed"});
+
+    }
+
+</script>
+

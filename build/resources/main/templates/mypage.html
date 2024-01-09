@@ -7,7 +7,7 @@
         <meta name="_csrf" th:content="${_csrf.token}">
         <meta name="_csrf_header" th:content="${_csrf.headerName}">
         <div class="signup-area login-cnt-area w100per rel zi2">
-            <form action="/user/signup" method="post" th:object="${userCreateForm}">
+            <form id="modifyForm" th:action="@{/user/mypage}" method="post" th:object="${userProfileUpdateForm}" enctype="multipart/form-data">
             <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
             <div class="con w100per">
                 <h1 class="title-text lh120 tb tac wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">내 정보</h1>
@@ -17,61 +17,55 @@
                             <h3 class="c333 f18 tb mb16">프로필 사진</h3>
                             <div class="file-type-1 rel flex aie g20">
                                 <div class="user-img-box">
-                                    <img th:src="@{/img/user_img.svg}" alt="">
+                                    <img id="ProfileImage" th:if="${@rq.profileImgUrl != null}" th:src="@{|/gen${@rq.profileImgUrl}|}" alt="Profile Image" style="width: 100px; height: 100px; border-radius: 50%;">
+                                    <img id="previewImage" th:unless="${@rq.profileImgUrl != null}" th:src="@{/img/user_img.svg}" alt="Default Image" style="width: 100px; height: 100px; border-radius: 50%;">
                                 </div>
                                 <div class="file-btn w16 abs xy-bl">
-                                    <label for="user_img" class="block img-box">
-                                        <img th:src="@{/img/ico_edit_999999.svg}" alt="">
-                                    </label>
-                                    <input type="file" id="user_img">
+                                    <img id="editIcon" th:src="@{/img/ico_edit_999999.svg}" alt="" style="cursor: pointer;">
+                                    <input type="file" id="user_img" name="profileImage" style="display: none" accept="image/*" onchange="previewFile()">
                                 </div>
-                                <button type="button" class="btn-type-3">기본 이미지</button>
+                                <button type="button" class="btn-type-3" id="resetImageBtn">기본 이미지</button>
                             </div>
                         </li>
                         <li>
                             <h3 class="c333 f18 tb mb16">기존 비밀번호</h3>
                             <div class="input-btn-box flex g8">
                                 <div class="input-type-1">
-                                    <input type="password" th:field="*{username}"  placeholder="기존 비밀번호">
+                                    <input type="password" id="enteredPassword" placeholder="기존 비밀번호">
                                 </div>
-                                <button type="button" id="" class="btn-type-2">확인</button>
+                                <button type="button" id="checkPassword" class="btn-type-2">확인</button>
                             </div>
                             <div class="error-text-box wsn flex g8 mt8">
-                                <span th:if="${#fields.hasErrors('username')}" class="error-text f14 cCC0000" th:errors="*{username}"></span>
-                                <span class="error-text f14 cCC0000">비밀번호가 일치하지 않습니다.</span>
-                                <span class="confirm-text f14 c009521">비밀번호가 일치합니다.</span>
+                                <span id="passwordError" class="error-text f14 cCC0000"></span>
+                                <span id="passwordMatch" class="confirm-text f14 c009521"></span>
                             </div>
                         </li>
                         <!--위에 기존 비밀번호 확인 버튼 눌러서 비밀번호 일치하면 아래 새로운 비밀번호 input 태그 disabled제거하여 새로운 비밀번호 설정할 수 있게-->
                         <li>
-                            <h3 class="c333 f18 tb mb16">새로운 비밀번호</h3>
+                            <h3 class="c333 f18 tb mb16">새로운 비밀번호<span class="tb cCC0000 inblock">*</span><span class="c999 f14 inblock ml4">(최소 8자 이상, 영문, 숫자, 특수문자 3가지 조합)</span></h3>
                             <div class="input-type-1">
                                 <input type="password" th:field="*{password1}" placeholder="새로운 비밀번호" disabled>
                             </div>
                             <div class="error-text-box wsn flex g8 mt8">
                                 <span th:if="${#fields.hasErrors('password1')}" class="error-text f14 cCC0000" th:errors="*{password1}"></span>
-                                <span class="error-text f14 cCC0000">사용할 수 없는 비밀번호 입니다.</span>
-                                <span class="confirm-text f14 c009521">사용가능한 비밀번호 입니다.</span>
                             </div>
                             <div class="input-type-1 mt8">
                                 <input type="password" th:field="*{password2}" placeholder="비밀번호 확인" disabled>
                             </div>
                             <div class="error-text-box wsn flex g8 mt8">
-                                <span th:if="${#fields.hasErrors('password2')}" class="error-text f14 cCC0000" th:errors="*{password2}"></span>
-                                <span class="error-text f14 cCC0000">비밀번호가 일치하지 않습니다.</span>
-                                <span class="confirm-text f14 c009521">비밀번호가 일치합니다.</span>
+                                <span id="passwordMatch2" class="confirm-text f14"></span>
                             </div>
                         </li>
                         <li>
                             <h3 class="c333 f18 tb mb16">이메일</h3>
                             <div class="input-type-1">
-                                <input type="text" th:field="*{email}" placeholder="이메일" disabled>
+                                <input type="text" placeholder="이메일" th:value="${@rq.member.email}" disabled>
                             </div>
                         </li>
                         <li>
                             <h3 class="c333 f18 tb mb16">이름</h3>
                             <div class="input-type-1">
-                                <input type="text" th:field="*{name}" placeholder="이름">
+                                <input type="text" th:value="${@rq.member.name}" name="name" placeholder="이름">
                             </div>
                             <div class="error-text-box wsn flex g8 mt8">
                                 <span th:if="${#fields.hasErrors('name')}" class="error-text f14 cCC0000" th:errors="*{name}"></span>
@@ -80,10 +74,7 @@
                         <li>
                             <h3 class="c333 f18 tb mb16">생년월일</h3>
                             <div class="date-type-1">
-                                <input type="date" th:field="*{birthDate}" disabled>
-                            </div>
-                            <div class="error-text-box wsn flex g8 mt8">
-                                <span th:if="${#fields.hasErrors('birthDate')}" class="error-text f14 cCC0000" th:errors="*{birthDate}"></span>
+                                <input type="date" th:value="${@rq.member.birthDate}" disabled>
                             </div>
                         </li>
                         <li>
@@ -91,21 +82,21 @@
                                 <li class="w50per">
                                     <h3 class="c333 f18 tb mb16">지역</h3>
                                     <div class="select-type-2 rel">
-                                        <select id="area" th:field="*{area}">
+                                        <select id="area" th:value="${@rq.member.area}" name="area">
                                             <option value="">지역</option>
-                                            <option value="강원도">강원도</option>
-                                            <option value="경기도">경기도</option>
-                                            <option value="충청도">충청도</option>
-                                            <option value="전라도">전라도</option>
-                                            <option value="경상도">경상도</option>
-                                            <option value="제주">제주</option>
-                                            <option value="서울">서울</option>
-                                            <option value="인천">인천</option>
-                                            <option value="대전">대전</option>
-                                            <option value="부산">부산</option>
-                                            <option value="대구">대구</option>
-                                            <option value="울산">울산</option>
-                                            <option value="광주">광주</option>
+                                            <option value="강원도" th:selected="${@rq.member.area == '강원도'}">강원도</option>
+                                            <option value="경기도" th:selected="${@rq.member.area == '경기도'}">경기도</option>
+                                            <option value="충청도" th:selected="${@rq.member.area == '충청도'}">충청도</option>
+                                            <option value="전라도" th:selected="${@rq.member.area == '전라도'}">전라도</option>
+                                            <option value="경상도" th:selected="${@rq.member.area == '경상도'}">경상도</option>
+                                            <option value="제주" th:selected="${@rq.member.area == '제주'}">제주</option>
+                                            <option value="서울" th:selected="${@rq.member.area == '서울'}">서울</option>
+                                            <option value="인천" th:selected="${@rq.member.area == '인천'}">인천</option>
+                                            <option value="대전" th:selected="${@rq.member.area == '대전'}">대전</option>
+                                            <option value="부산" th:selected="${@rq.member.area == '부산'}">부산</option>
+                                            <option value="대구" th:selected="${@rq.member.area == '대구'}">대구</option>
+                                            <option value="울산" th:selected="${@rq.member.area == '울산'}">울산</option>
+                                            <option value="광주" th:selected="${@rq.member.area == '광주'}">광주</option>
                                         </select>
                                         <span class="arrow img-box abs y-middle">
                                         <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
@@ -116,30 +107,150 @@
                                     </div>
                                 </li>
                                 <li class="w50per">
-                                    <h3 class="c333 f18 tb mb16">레벨<span class="tb cCC0000 inblock">*</span></h3>
+                                    <h3 class="c333 f18 tb mb16">레벨</h3>
                                     <div class="select-type-2 rel">
-                                        <select id="level" th:field="*{level}" disabled>
+                                        <select id="level" th:value="${@rq.member.level}" disabled>
                                             <option value="">레벨</option>
-                                            <option value="하">하</option>
-                                            <option value="중">중</option>
-                                            <option value="상">상</option>
+                                            <option value="하" th:selected="${@rq.member.level == '하'}">하</option>
+                                            <option value="중" th:selected="${@rq.member.level == '중'}">중</option>
+                                            <option value="상" th:selected="${@rq.member.level == '상'}">상</option>
                                         </select>
                                         <span class="arrow img-box abs y-middle">
                                         <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
                                     </span>
-                                    </div>
-                                    <div class="error-text-box wsn flex g8 mt8">
-                                        <span th:if="${#fields.hasErrors('level')}" class="error-text f14 cCC0000" th:errors="*{level}"></span>
                                     </div>
                                 </li>
                             </ul>
                         </li>
                     </ul>
                     <!--수정하는 내용이 있을 경우 confirm창으로 정말 수정하시겠습니까? 한 번 물어보고 확인 누를 경우 빈 값 혹은 유효성 검사 후 수정 진행-->
-                    <button type="submit" class="btn-type-1 mt100">수정하기</button>
+                    <button type="button" id="modifyButton" class="btn-type-1 mt100">수정하기</button>
                 </div>
             </div>
             </form>
         </div>
 </div>
 </html>
+
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    // 이미지 미리보기 함수
+    function previewFile() {
+        var fileInput = $("#user_img")[0];
+        var file = fileInput.files[0];
+
+        if (file) {
+            var reader = new FileReader();
+
+            reader.onload = function (e) {
+                // 이미지 미리보기 업데이트
+                $("#ProfileImage, #previewImage").attr("src", e.target.result);
+            };
+
+            reader.readAsDataURL(file);
+        }
+    }
+    $(document).ready(function () {
+        // 이미지를 클릭하면 파일 선택 다이얼로그 열기
+        $("#editIcon").click(function () {
+            $("#user_img").click();
+        });
+        // 파일 선택이 변경되었을 때 이미지 미리보기 업데이트
+        $("#user_img").change(function () {
+            previewFile();
+        });
+        // 기본 이미지로 변경 버튼 클릭 시 처리
+        $("#resetImageBtn").click(function () {
+            // 파일 선택 input 초기화
+            $("#user_img").val("");
+            // 미리보기 이미지를 기본 이미지로 변경
+            $("#ProfileImage, #previewImage").attr("src", "/img/user_img.svg");
+            // 서버에 null 값을 전송
+            $("input[name='profileImage']").val("");
+        });
+
+        // 확인 버튼 클릭 시
+        $("#checkPassword").click(function () {
+            var enteredPassword = $("#enteredPassword").val();
+
+            var token = $("meta[name='_csrf']").attr("content");
+            var header = $("meta[name='_csrf_header']").attr("content");
+
+            // 비밀번호 확인 API 호출
+            $.ajax({
+                type: "POST",
+                url: "/user/checkPassword",
+                data: { enteredPassword: enteredPassword },
+                beforeSend: function(xhr) {
+                    xhr.setRequestHeader(header, token);
+                },
+                success: function (response) {
+                    // 비밀번호가 일치하는 경우
+                    $("#passwordError").text("");
+                    $("#passwordMatch").text(response);
+
+                    // 기존 비밀번호 입력 필드를 비활성화
+                    $("#enteredPassword").prop("disabled", true);
+                    // 새로운 비밀번호 입력 필드를 활성화
+                    $("#password1").prop("disabled", false);
+                    $("#password2").prop("disabled", false);
+
+                    // 성공 메시지를 보여주는 부분 추가
+                    $(".confirm-text").text(response);
+                },
+                error: function (error) {
+                    // 비밀번호가 일치하지 않는 경우
+                    $("#passwordError").text(error.responseText);
+                    $("#passwordMatch").text("");
+
+                    // 에러 메시지를 보여주는 부분 추가
+                    $(".error-text").text(error.responseText);
+                }
+            });
+        });
+        // 비밀번호 확인 일치 여부 확인
+        function checkPasswordMatch() {
+            var password1 = $("input[name='password1']").val();
+            var password2 = $("input[name='password2']").val();
+
+            if (!password2.trim()) {
+                updatePasswordMatchMessage("", true);
+                return;
+            }
+            // 비밀번호 일치 여부 확인
+            if (password1 === password2) {
+                updatePasswordMatchMessage("비밀번호가 일치합니다.", true);
+            } else {
+                updatePasswordMatchMessage("비밀번호가 일치하지 않습니다.", false);
+            }
+        }
+
+        // 비밀번호 확인 결과 메시지 업데이트 함수
+        function updatePasswordMatchMessage(message, isSuccess) {
+            var messageBox = $("#passwordMatch2");
+
+            // isSuccess 값에 따라 메시지 색상 변경
+            if (isSuccess) {
+                messageBox.removeClass("error-text").addClass("confirm-text");
+                messageBox.css("color", "#009521"); // 성공 시 색상
+            } else {
+                messageBox.removeClass("confirm-text").addClass("error-text");
+                messageBox.css("color", "#CC0000"); // 실패 시 색상
+            }
+
+            // 결과 메시지 업데이트
+            messageBox.text(message);
+        }
+        $("input[name='password2']").on("input", function () {
+            // 입력 값이 변경되면 메시지를 숨김
+            updatePasswordMatchMessage("", true);
+            checkPasswordMatch(); // 비밀번호 일치 여부 확인
+        });
+
+        $("#modifyButton").click(function () {
+            if (confirm("정말로 수정하시겠습니까?")) {
+                $("#modifyForm").submit(); // 사용자가 확인하면 폼 제출
+            }
+        });
+    });
+</script>

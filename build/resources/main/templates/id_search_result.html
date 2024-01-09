@@ -6,7 +6,7 @@
             <h1 class="title-text lh120 tb tac wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">아이디 찾기</h1>
             <div class="flex fdc wow fadeInUp" data-wow-delay="0.6s" data-wow-duration="0.6s">
                 <p class="c333 f18">
-                    회원님의 아이디는 “<span class="tb inblock" th:text="${findUsername}"></span>” 입니다.
+                    회원님의 아이디는 “<span class="tb inblock" th:text="${findUsername.getUsername()}"></span>” 입니다.
                 </p>
                 <div class="flex g8 mt80">
                     <a th:href="@{/user/login}" class="btn-type-1 w100per ">로그인</a>

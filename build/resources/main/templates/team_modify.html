@@ -1,0 +1,252 @@
+<html layout:decorate="~{/common/layout}">
+<div layout:fragment="content">
+    <form id="teamModify" th:object="${teamCreateForm}"
+          method="post" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div class="login-cnt-area w100per rel zi2">
+            <div class="con w50per">
+                <h1 class="title-text lh120 tb tac wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">팀
+                    정보 수정</h1>
+                <div class="flex fdc wow fadeInUp" data-wow-delay="0.6s" data-wow-duration="0.6s">
+                    <ul class="flex fdc g36">
+                        <li>
+                            <h3 class="c333 f18 tb mb16">[엠블럼 이미지]</h3>
+                            <div class="file-type-1 rel flex aie g20">
+                                <div class="user-img-box">
+                                    <img id="ProfileImage" th:if="${team.profileImgUrl != null}" th:src="@{|/gen${team.profileImgUrl}|}" alt="" style="width: 100px; height: 100px; border-radius: 50%;">
+                                    <img id="previewImage" th:unless="${team.profileImgUrl != null}" th:src="@{/img/emblem_img.svg}" alt="" style="width: 100px; height: 100px; border-radius: 50%;">
+                                </div>
+                                <div class="file-btn w16 abs xy-bl">
+                                    <img id="editIcon" th:src="@{/img/ico_edit_999999.svg}" alt="" style="cursor: pointer;">
+                                    <input type="file" id="emblem_img" name="profileImage" style="display: none" accept="image/*" onchange="previewFile()">
+                                </div>
+                                <button type="button" class="btn-type-3" id="resetImageBtn">기본 이미지</button>
+                            </div>
+                        </li>
+                        <li>
+                            <h3 class="c333 f18 tb mb16">팀명</h3>
+                            <div class="input-btn-box flex g8">
+                                <div class="input-type-1">
+                                    <input id="teamName" name='teamName' type="text"
+                                           placeholder="팀명" th:value="${team.teamName}">
+                                </div>
+                                <button id="checkTeamNameBtn" type="button" class="btn-type-2">중복 확인</button>
+                            </div>
+                            <div id="checkTeamName" class="error-text-box wsn flex g8 mt8">
+                                <span th:if="${#fields.hasErrors('teamName')}" class="error-text f14 cCC0000"
+                                      th:errors="*{teamName}"></span>
+                                <span class="confirm-text message-box f14"></span>
+                            </div>
+                        </li>
+                        <li>
+                            <ul class="flex g8">
+                                <li class="w50per">
+                                    <h3 class="c333 f18 tb mb16">지역<span class="tb cCC0000 inblock">*</span></h3>
+                                    <div class="select-type-2 rel">
+                                        <select id="area" name="area" th:value="${team.area}">
+                                            <option value="">지역</option>
+                                            <option value="강원도" th:selected="${team.area == '강원도'}">강원도</option>
+                                            <option value="경기도" th:selected="${team.area == '경기도'}">경기도</option>
+                                            <option value="충청도" th:selected="${team.area == '충청도'}">충청도</option>
+                                            <option value="전라도" th:selected="${team.area == '전라도'}">전라도</option>
+                                            <option value="경상도" th:selected="${team.area == '경상도'}">경상도</option>
+                                            <option value="제주" th:selected="${team.area == '제주'}">제주</option>
+                                            <option value="서울" th:selected="${team.area == '서울'}">서울</option>
+                                            <option value="인천" th:selected="${team.area == '인천'}">인천</option>
+                                            <option value="대전" th:selected="${team.area == '대전'}">대전</option>
+                                            <option value="부산" th:selected="${team.area == '부산'}">부산</option>
+                                            <option value="대구" th:selected="${team.area == '대구'}">대구</option>
+                                            <option value="울산" th:selected="${team.area == '울산'}">울산</option>
+                                            <option value="광주" th:selected="${team.area == '광주'}">광주</option>
+                                        </select>
+                                        <span class="arrow img-box abs y-middle">
+                                        <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
+                                    </span>
+                                    </div>
+                                </li>
+                                <li class="w50per">
+                                    <h3 class="c333 f18 tb mb16">레벨<span class="tb cCC0000 inblock">*</span></h3>
+                                    <div class="select-type-2 rel">
+                                        <select id="level" th:value="${team.level}" disabled>
+                                            <option value="">레벨</option>
+                                            <option value="하" th:selected="${team.level == '하'}">하</option>
+                                            <option value="중" th:selected="${team.level == '중'}">중</option>
+                                            <option value="상" th:selected="${team.level == '상'}">상</option>
+                                        </select>
+                                        <span class="arrow img-box abs y-middle">
+                                        <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
+                                    </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+                    <button type="submit" id="modifyButton" class="btn-type-1 mt100">
+                        수정하기</button>
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</html>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // 이미지 미리보기 함수
+        function previewFile() {
+            var fileInput = $("#emblem_img")[0];
+            var file = fileInput.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // 이미지 미리보기 업데이트
+                    $("#ProfileImage").attr("src", e.target.result);
+                    $("#previewImage").attr("src", e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 파일 선택 다이얼로그 열기
+        $("#editIcon").click(function () {
+            $("#emblem_img").click();
+        });
+        // 파일 선택이 변경되었을 때 이미지 미리보기 업데이트
+        $("#emblem_img").change(function () {
+            previewFile();
+            if ($("#emblem_img")[0].files.length === 0) {
+                $("#previewImage").removeAttr("src");
+                // // 이미지가 선택되지 않았을 때 profileImgUrl을 null로 설정
+                $("input[name='profileImage']").val(""); // 추가된 부분
+            }
+        });
+
+        // 이미지가 없는 경우 기본 이미지로 설정
+        $(window).on('load', function () {
+            var emblemImg = $("#emblem_img")[0];
+            if (emblemImg && emblemImg.files && emblemImg.files.length === 0) {
+                $("#previewImage").attr("src", "/img/emblem_img.svg");
+                previewImage
+            }
+        });
+
+        $("#resetImageBtn").click(function () {
+            // 파일 선택 input 초기화
+            $("#emblem_img").val("");
+
+            // 미리보기 이미지를 기본 이미지로 변경
+            $("#ProfileImage").attr("src", "/img/emblem_img.svg");
+            $("#previewImage").attr("src", "/img/emblem_img.svg");
+        });
+
+        // 중복 확인 버튼 클릭 시 처리
+        $("#checkTeamNameBtn").click(function () {
+            var teamName = $("#teamName").val();
+
+            console.log(area);
+
+            $.ajax({
+                type: "GET",
+                url: "/team/check_modifyteamname",
+                data: {"teamName": teamName},
+                cache: false,
+                success: function (data) {
+                    if (teamName != null) {
+                        updateUsernameMessage(data, true);
+                    } else {
+                        updateUsernameMessage(data, false);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = "팀명을 다시 입력하세요.";
+                    if (xhr.status === 409) {
+                        errorMessage = "이미 사용 중인 팀명입니다.";
+                    }
+                    updateUsernameMessage(errorMessage, false);
+                }
+            });
+        });
+
+        // 팀 등록 폼 서브밋 함수
+        function updateUsernameMessage(message, isSuccess) {
+            // 팀명 중복 확인 결과 메시지 업데이트
+            const messageBox = $("#checkTeamName").find(".message-box");
+
+            // isSuccess 값에 따라 메시지 색상 변경
+            if (isSuccess) {
+                messageBox.removeClass("error-text").addClass("confirm-text");
+                messageBox.css("color", "#009521"); // 성공 시 색상
+            } else {
+                messageBox.removeClass("confirm-text").addClass("error-text");
+                messageBox.css("color", "#CC0000"); // 실패 시 색상
+            }
+
+            // 결과 메시지 업데이트
+            messageBox.text(message);
+        }
+
+        // 팀 등록
+        $(document).ready(function () {
+
+            $("#teamModify").submit(function (event) {
+                // 기본 동작 방지
+                event.preventDefault();
+                // 팀 등록 폼 서브밋 함수 호출
+                submitTeamModifyForm();
+            });
+
+            // 팀 수정 버튼
+            function submitTeamModifyForm() {
+                // 팀명 입력값 확인
+                var teamName = $("input[name='teamName']").val();
+                var area = $("select[name='area']").val();
+
+                if (!teamName && !area) {
+                    alert("다시 입력해 주세요.");
+                    return; // 데이터 없으면 함수 중단
+                }
+
+                // Thymeleaf를 사용하여 팀 ID 가져오기
+                var teamId = [[${team.id}]];
+                var area = $("#area").val();
+
+                var formData = new FormData($("#teamModify")[0]);
+
+                // AJAX 호출
+                $.ajax({
+                    type: "POST",
+                    url: `/team/team_modify/${teamId}`,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    success: function (data) {
+                        if(area != '') {
+                            window.location.href = "/team/team_detail/" + teamId
+                            console.log("팀 수정 성공, 이동 전 레벨 값:", $("#area").val());
+                            alert("팀 수정이 완료되었습니다.");
+                        }else {
+                            alert("지역을 입력해주세요.");
+                        }
+                    },
+                    error: function (xhr, status, error) {
+                        console.log(xhr.responseText);
+                        console.log("팀 등록 실패");
+                        alert("팀 수정에 실패했습니다.");
+                    }
+                })
+                $("#modifyButton").click(function () {
+                    console.log("Modify button clicked");
+                    if (confirm("정말로 수정하시겠습니까?")) {
+                        // $("#teamModify").submit(); // 사용자가 확인하면 폼 제출
+                    }
+                });
+
+            }
+        })
+    });
+</script>
+

@@ -7,7 +7,7 @@
         <meta name="_csrf" th:content="${_csrf.token}">
         <meta name="_csrf_header" th:content="${_csrf.headerName}">
         <div class="signup-area login-cnt-area w100per rel zi2">
-            <form action="/user/signup" method="post" th:object="${userCreateForm}" enctype="multipart/form-data">
+            <form method="post" th:object="${userCreateForm}" enctype="multipart/form-data">
             <input type="hidden" name="_csrf" th:value="${_csrf.token}" />
             <div class="con w100per">
                 <h1 class="title-text lh120 tb tac wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">회원가입</h1>
@@ -40,10 +40,9 @@
                             </div>
                         </li>
                         <li>
-                            <h3 class="c333 f18 tb mb16">비밀번호<span class="tb cCC0000 inblock">*</span></h3>
+                            <h3 class="c333 f18 tb mb16">비밀번호<span class="tb cCC0000 inblock">*</span><span class="c999 f14 inblock ml4">(최소 8자 이상, 영문, 숫자, 특수문자 3가지 조합)</span></h3>
                             <div class="input-type-1">
                                 <input type="password" th:field="*{password1}" placeholder="비밀번호">
-                                <span class="f14">* 최소 8자 이상, 영문, 숫자, 특수문자 3가지 조합</span>
                             </div>
                             <div class="error-text-box wsn flex g8 mt8">
                                 <span th:if="${#fields.hasErrors('password1')}" class="error-text f14 cCC0000" th:errors="*{password1}"></span>
@@ -161,7 +160,6 @@
         </div>
 </div>
 </html>
-
 <script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
 <script>
     // 이미지 미리보기 함수
@@ -179,6 +177,10 @@
 
             reader.readAsDataURL(file);
         }
+    }
+    let message = "[[${msg}]]";
+    if(message != ""){
+        alert(message);
     }
     $(document).ready(function () {
         // 이미지를 클릭하면 파일 선택 다이얼로그 열기
@@ -233,6 +235,7 @@
             if (isEmailValid) {
             var token = $("meta[name='_csrf']").attr("content");
             var header = $("meta[name='_csrf_header']").attr("content");
+
             // 서버에 이메일 전송 요청 보내기
             const sendData = { email: email };
 

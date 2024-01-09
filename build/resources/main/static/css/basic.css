@@ -149,6 +149,7 @@ span, a {display: block;}
 .w20 {width: 2rem;}
 .w16 {width: 1.6rem;}
 .w12 {width: 1.2rem;}
+.w1 {width: 0.1rem;}
 
 .hvh100 {height: 100vh;}
 .hvh50 {height: 50vh;}
@@ -458,6 +459,7 @@ span, a {display: block;}
 .b777 {background: #777;}
 .b888 {background: #888;}
 .b999 {background: #999;}
+.bE0E0E0 {background: #E0E0E0;}
 
 .bg-1 {background: linear-gradient(90deg, #DC4073, #ED9D50);}
 

@@ -1,0 +1,156 @@
+<html layout:decorate="~{/common/layout}">
+<div layout:fragment="content">
+
+    <div class="matching-detail-area w100per rel zi2">
+        <div class="con w100per">
+            <div class="flex fdc wow fadeInUp" data-wow-delay="0.6s" data-wow-duration="0.6s">
+                <div class="map-box rel w100per">
+                    <iframe th:src="${matching.stadium.mapUrl}" width="100%" height="550" style="border:0;" allowfullscreen="" loading="lazy"
+                            referrerpolicy="no-referrer-when-downgrade"></iframe>
+                    <button class="btn-type-2 abs" id="copyButton" style="right: 60px; bottom: 16px;">주소 복사</button>
+                    <p id="addressDisplay" style="display: none;" th:text="${matching.stadium.address}"></p>
+                </div>
+                <div class="matching-text-area flex w100per" style="box-sizing: border-box; padding: 40px 28px;">
+                    <div class="matching-infor-box w50per bsb"
+                         style="padding-right: 28px; height: auto;">
+                        <h3 class="c333 f20 tb">매칭 정보</h3>
+                        <ul class="text-box flex fww mt20" style="row-gap: 16px;">
+                            <li class="flex aic g4" style="width: 255px">
+                                <span class="img-box w24">
+                                    <img th:src="@{/img/matching_ico_1.svg}" alt="">
+                                </span>
+                                <span class="f18 c555" th:if="${matching.matchingType.toString() == 'TYPE_1'}">용병 매칭</span>
+                                <span class="f18 c555" th:if="${matching.matchingType.toString() == 'TYPE_2'}">팀 매칭</span>
+                            </li>
+                            <li class="flex aic g4" style="width: 255px">
+                                <span class="img-box w24">
+                                    <img th:src="@{/img/matching_ico_2.svg}" alt="">
+                                </span>
+                                <span class="f18 c555" th:text="${matching.level}">하</span>
+                            </li>
+                            <li class="flex aic g4" style="width: 255px">
+                                <span class="img-box w24">
+                                    <img th:src="@{/img/matching_ico_3.svg}" alt="">
+                                </span>
+                                <span class="f18 c555" th:text="${#temporals.format(matching.matchingDate.gameDate, 'M월 d일 E요일', new java.util.Locale('ko'))}"></span>
+                                <span class="f18 c555" th:text="${matching.gameTime}"></span>
+                            </li>
+                            <li class="flex aic g4" style="width: 255px">
+                                <span class="img-box w24">
+                                    <img th:src="@{/img/matching_ico_4.svg}" alt="">
+                                </span>
+                                <span class="f18 c555" th:text="${matching.stadium.area} + ' ' + ${matching.stadium.name}"></span>
+                            </li>
+                            <li class="flex aic g4" style="width: 255px">
+                                <span class="img-box w24">
+                                    <img th:src="@{/img/matching_ico_5.svg}" alt="">
+                                </span>
+                                <span class="f18 c555" th:text="${matching.managerName} + ' ' + 매니저"></span>
+                            </li>
+                        </ul>
+                    </div>
+                    <div th:if="${@rq.member.rating == 1 or @rq.member.rating == 3 or @rq.member.rating == 4 or @rq.member.rating == 2 and @rq.member.name == matching.managerName}" class="application-list-box w50per bsb" style="padding-left: 28px; border-left: 1px solid #E0E0E0; height: auto; height: auto;">
+                        <div th:if="${matching.matchingType.toString() == 'TYPE_1'}" class="h100per">
+                            <div class="user-btn-box h100per flex aic jcsb g20" th:if="${@rq.member.rating == 1 or @rq.member.rating == 3 or @rq.member.rating == 4}">
+                                <button class="favor-box img-box w40" id="favor_btn" th:classappend="${!matching?.wishLists.?[siteUser?.username == @rq.member.username].isEmpty()} ? 'active' : ''">
+                                    <img th:src="@{/img/ico_heart.svg}" alt="">
+                                </button>
+                                <div style="width: calc(100% - 60px);">
+                                    <!--                                    원래 코드-->
+<!--                                    <form th:if="${#lists.size(matching.userList) < 14 and !isCurrentUserInList}" onclick="return confirm('정말 신청하시겠습니까?')" th:action="@{|/matching/mercenary/${matching.id}|}" method="post">-->
+<!--                                        <button type="submit" class="btn-type-1" style="width: 100%;" th:text="${'용병 신청하기 ' + #lists.size(matching.userList) + ' / 14'}"></button>-->
+<!--                                    </form>-->
+<!--                                    <a th:if="${isCurrentUserInList}" onclick="return confirm('정말 취소하시겠습니까?')" th:href="@{|/matching/mercenary/delete/${matching.id}|}" class="btn-type-1-3" style="width: 100%;" th:text="${'용병 취소하기 ' + #lists.size(matching.userList) + ' / 14'}"></a>-->
+<!--                                    <div class="btn-type-1-4" style="width: 100%;" th:if="${#lists.size(matching.userList) == 14 and !isCurrentUserInList}" th:text="${'용병 모집 완료 ' + #lists.size(matching.userList) + ' / 14'}"></div>-->
+
+                                    <!--발표할 때 시간관계상 코드 수정(14명 -> 4명)-->
+                                    <form th:if="${#lists.size(matching.userList) < 4 and !isCurrentUserInList}" onclick="return confirm('정말 신청하시겠습니까?')" th:action="@{|/matching/mercenary/${matching.id}|}" method="post">
+                                        <button type="submit" class="btn-type-1" style="width: 100%;" th:text="${'용병 신청하기 ' + #lists.size(matching.userList) + ' / 4'}"></button>
+                                    </form>
+                                    <a th:if="${isCurrentUserInList}" onclick="return confirm('정말 취소하시겠습니까?')" th:href="@{|/matching/mercenary/delete/${matching.id}|}" class="btn-type-1-3" style="width: 100%;" th:text="${'용병 취소하기 ' + #lists.size(matching.userList) + ' / 4'}"></a>
+                                    <div class="btn-type-1-4" style="width: 100%;" th:if="${#lists.size(matching.userList) == 4 and !isCurrentUserInList}" th:text="${'용병 모집 완료 ' + #lists.size(matching.userList) + ' / 4'}"></div>
+                                </div>
+                            </div>
+                            <div class="user-list-box" th:if="${@rq.member.rating == 2 and @rq.member.name == matching.managerName}">
+                                <!--                                    원래 코드-->
+<!--                                <h3 class="c333 f20 tb" th:text="${'신청 내역(' + #lists.size(matching.userList) + '/14)'}">)</h3>-->
+
+                                <!--발표할 때 시간관계상 코드 수정(14명 -> 4명)-->
+                                <h3 class="c333 f20 tb" th:text="${'신청 내역(' + #lists.size(matching.userList) + '/4)'}">)</h3>
+                                <div class="table-type-2 table-type mt12">
+                                    <table>
+                                        <tbody>
+                                        <tr th:each="user : ${matching.userList}">
+                                            <td style="width: 30%">
+                                                <div class="user-name-box inflex aic g8">
+                                                    <span class="img-box w24" style="border-radius: 50%; overflow: hidden;">
+                                                        <img th:if="${user.profileImgUrl == null}" th:src="@{/img/user_img.svg}" alt="Default Image">
+                                                        <img th:if="${user.profileImgUrl != null}" th:src="@{|/gen${user.profileImgUrl}|}" alt="User Image">
+                                                    </span>
+                                                    <span class="c555 inblock" th:text="${user.name}"></span>
+                                                </div>
+                                            </td>
+                                            <td th:text="${user.username}" style="width: 30%"></td>
+                                            <td th:text="${user.birthDate}" style="width: 30%"></td>
+                                            <td th:text="${user.level}" style="width: 10%"></td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <div th:if="${matching.matchingType.toString() == 'TYPE_2'}" class="h100per">
+                            <div class="user-btn-box flex aic jcsb g20">
+                                <button class="favor-box img-box w40" id="favor_btn">
+                                    <img th:src="@{/img/ico_heart.svg}" alt="">
+                                </button>
+                                <div style="width: calc(100% - 60px);">
+                                    <button type="submit" class="btn-type-1" style="width: 100%;">팀 신청하기 0 / 2</button>
+                                    <button type="submit" class="btn-type-1-3" style="width: 100%;">팀 취소하기 1 / 2</button>
+                                    <div class="btn-type-1-4" style="width: 100%;">팀 모집 완료 2 / 2</div>
+                                </div>
+                            </div>
+                            <div class="user-list-box">
+                                <h3 class="c333 f20 tb">신청 내역(2/2)</h3>
+                                <div class="table-type-2 table-type mt12">
+                                    <table>
+                                        <tbody>
+                                        <tr>
+                                            <td>
+                                                <div class="user-name-box inflex aic g8">
+                                                    <span class="img-box w24">
+                                                        <img th:src="@{/img/emblem_img.svg}" alt="">
+                                                    </span>
+                                                    <span class="c555 inblock">제비FC</span>
+                                                </div>
+                                            </td>
+                                            <td>상</td>
+                                        </tr>
+                                        <tr>
+                                            <td>
+                                                <div class="user-name-box inflex aic g8">
+                                                    <span class="img-box w24">
+                                                        <img th:src="@{/img/emblem_img.svg}" alt="">
+                                                    </span>
+                                                    <span class="c555 inblock">탄광FC</span>
+                                                </div>
+                                            </td>
+                                            <td>상</td>
+                                        </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div th:if="${@rq.member.rating == 2 and @rq.member.name == matching.managerName}"  class="flex g8 mgc mt80" style="width: 720px;">
+                    <a th:href="@{|/matching/modify/${matching.id}|}" class="btn-type-1 w100per" id="matching_modify_btn" th:data-userlist-size="${#lists.size(matching.userList)}">수정</a>
+                    <a th:href="@{|/matching/delete/${matching.id}|}" class="btn-type-1-2 w100per" id="matching_delete_btn" th:data-userlist-size="${#lists.size(matching.userList)}">삭제</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+</html>

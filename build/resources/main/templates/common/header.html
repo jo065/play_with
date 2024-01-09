@@ -6,28 +6,34 @@
             </a>
             <ul class="menu-box flex aic g60">
                 <li>
-                    <a href="#area_0" class="scroll-btn c777 f20">홈</a>
+                    <a th:href="@{/#area_0}" class="scroll-btn c777 f20">홈</a>
                 </li>
                 <li>
-                    <a href="#area_1" class="scroll-btn c777 f20">용병 매칭</a>
+                    <a th:href="@{/#area_1}" class="scroll-btn c777 f20">용병 매칭</a>
                 </li>
                 <li>
-                    <a href="#area_2" class="scroll-btn c777 f20">팀 매칭</a>
+                    <a th:href="@{/#area_2}" class="scroll-btn c777 f20">팀 매칭</a>
                 </li>
                 <li>
-                    <a href="" class="scroll-btn c777 f20">신고하기</a>
-                </li>
-                <li>
-                    <a href="#area_3" class="scroll-btn c777 f20">자주 묻는 질문</a>
+                    <a th:href="@{/#area_3}" class="scroll-btn c777 f20">자주 묻는 질문</a>
                 </li>
             </ul>
         </div>
+
         <div class="right-box flex aic g40">
             <div sec:authorize="isAuthenticated()" class="user-name-box flex aic jcc f16 tm c777">
                 <span class="img-box w28 mr8">
-                    <img th:src="@{/img/user_img.svg}" alt="">
+                    <img th:if="${@rq.profileImgUrl != null}" th:src="@{|/gen${@rq.profileImgUrl}|}" alt="Profile Image">
+                    <img th:unless="${@rq.profileImgUrl != null}" th:src="@{/img/user_img.svg}" alt="Default Image">
                 </span>
-                <span class="c333 tb inblock" th:text="${#authentication.name}"></span>님
+                <div th:if="${@rq.member.rating == 1 or @rq.member.rating == 3 or @rq.member.rating == 4}" class="flex aic g4">
+                    <span class="c333 tb" th:text="${@rq.member.name}"></span>
+                    <span class="c999">님</span>
+                </div>
+                <div th:if="${@rq.member.rating == 2}" class="flex aic g4">
+                    <span class="c333 tb" th:text="${@rq.member.name}"></span>
+                    <span class="c999">매니저</span>
+                </div>
             </div>
             <ul class="sub-menu-box flex aic g12">
                 <li sec:authorize="isAnonymous()">
@@ -36,14 +42,17 @@
                 <li sec:authorize="isAnonymous()">
                     <a th:href="@{/user/signup}" class="c999 f16">회원가입</a>
                 </li>
-                <li sec:authorize="isAuthenticated()">
+                <li sec:authorize="isAuthenticated()" th:if="${@rq.member.rating == 1 or @rq.member.rating == 3 or @rq.member.rating == 4}">
                     <a th:href="@{/user/mypage}" class="c999 f16">내 정보</a>
                 </li>
-                <li sec:authorize="isAuthenticated()">
-                    <a th:href="@{/user/}" class="c999 f16">팀 정보</a>
+                <li sec:authorize="isAuthenticated()" th:if="${@rq.member.rating == 1 or @rq.member.rating == 3 or @rq.member.rating == 4}">
+                    <a th:href="@{/team/team_list}" class="c999 f16">팀 정보</a>
                 </li>
                 <li sec:authorize="isAuthenticated()">
-                    <a th:href="@{/user/}" class="c999 f16">위시리스트</a>
+                    <a th:href="@{/matching/history}" class="c999 f16">매칭 내역</a>
+                </li>
+                <li sec:authorize="isAuthenticated()" th:if="${@rq.member.rating == 1 or @rq.member.rating == 3 or @rq.member.rating == 4}">
+                    <a th:href="@{/wishlist}" class="c999 f16">위시리스트</a>
                 </li>
                 <li sec:authorize="isAuthenticated()">
                     <a th:href="@{/user/logout}" class="c999 f16">로그아웃</a>

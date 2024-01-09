@@ -89,15 +89,15 @@
                                 <li class="w50per">
                                     <h3 class="c333 f18 tb mb16">구장<span class="tb cCC0000 inblock">*</span></h3>
                                     <div class="select-type-2 rel">
-                                        <select th:field="*{betel}" id="stadiumSelect">
+                                        <select th:field="*{stadium}" id="stadiumSelect">
                                             <option value="">구장</option>
                                         </select>
                                         <span class="arrow img-box abs y-middle">
                                             <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
                                         </span>
                                     </div>
-                                    <div class="error-text-box wsn flex g8 mt8" role="alert" th:if="${#fields.hasErrors('betel')}">
-                                        <div class="error-text f14 cCC0000" th:each="err : ${#fields.errors('betel')}" th:text="${err}" />
+                                    <div class="error-text-box wsn flex g8 mt8" role="alert" th:if="${#fields.hasErrors('stadium')}">
+                                        <div class="error-text f14 cCC0000" th:each="err : ${#fields.errors('stadium')}" th:text="${err}" />
                                     </div>
                                 </li>
                             </ul>

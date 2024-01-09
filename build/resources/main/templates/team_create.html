@@ -1,0 +1,238 @@
+<html layout:decorate="~{/common/layout}">
+<div layout:fragment="content">
+
+    <form id="teamCreate" th:object="${teamCreateForm}" method="post" enctype="multipart/form-data">
+        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+        <div class="login-cnt-area w100per rel zi2">
+            <div class="con w50per">
+                <div class="flex fdc wow fadeInUp" data-wow-delay="0.6s" data-wow-duration="0.6s">
+                    <ul class="flex fdc g36">
+                        <li>
+                            <h3 class="c333 f18 tb mb16">[엠블럼 이미지]</h3>
+                            <div class="file-type-1 rel flex aie g20">
+                                <div class="user-img-box">
+                                    <img id="previewImage" th:src="@{/img/emblem_img.svg}" alt=""
+                                         style="width: 100px; height: 100px; border-radius: 50%;">
+                                </div>
+                                <div class="file-btn w16 abs xy-bl">
+                                    <img id="editIcon" th:src="@{/img/ico_edit_999999.svg}" alt=""
+                                         style="cursor: pointer;">
+                                    <input type="file" id="emblem_img" name="profileImage" style="display: none"
+                                           accept="image/*" onchange="previewFile()">
+                                </div>
+                                <button type="button" class="btn-type-3" id="resetImageBtn">기본 엠블럼</button>
+                            </div>
+                        </li>
+                        <li>
+                            <h3 class="c333 f18 tb mb16">팀명</h3>
+                            <div class="input-btn-box flex g8">
+                                <div class="input-type-1">
+                                    <input name="teamName" type="text" th:field="*{teamName}" placeholder="팀명">
+                                </div>
+                                <button id="checkTeamNameBtn" type="button" class="btn-type-2">중복 확인</button>
+                            </div>
+                            <div id="checkTeamName" class="error-text-box wsn flex g8 mt8">
+                                <span th:if="${#fields.hasErrors('teamName')}" class="error-text f14 cCC0000"
+                                      th:errors="*{teamName}"></span>
+                                <span class="confirm-text message-box f14"></span>
+                            </div>
+                        </li>
+                        <li>
+                            <ul class="flex g8">
+                                <li class="w50per">
+                                    <h3 class="c333 f18 tb mb16">지역<span class="tb cCC0000 inblock">*</span></h3>
+                                    <div class="select-type-2 rel">
+                                        <select name="area" id="area" th:field="*{area}">
+                                            <option value="">지역</option>
+                                            <option value="강원도">강원도</option>
+                                            <option value="경기도">경기도</option>
+                                            <option value="충청도">충청도</option>
+                                            <option value="전라도">전라도</option>
+                                            <option value="경상도">경상도</option>
+                                            <option value="제주">제주</option>
+                                            <option value="서울">서울</option>
+                                            <option value="인천">인천</option>
+                                            <option value="대전">대전</option>
+                                            <option value="부산">부산</option>
+                                            <option value="대구">대구</option>
+                                            <option value="울산">울산</option>
+                                            <option value="광주">광주</option>
+                                        </select>
+                                        <span class="arrow img-box abs y-middle">
+                                        <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
+                                    </span>
+                                    </div>
+                                </li>
+                                <li class="w50per">
+                                    <h3 class="c333 f18 tb mb16">레벨<span class="tb cCC0000 inblock">*</span></h3>
+                                    <div class="select-type-2 rel">
+                                        <select name="level" th:field="*{level}" id="level">
+                                            <option value="">레벨</option>
+                                            <option value="하">하</option>
+                                            <option value="중">중</option>
+                                            <option value="상">상</option>
+                                        </select>
+                                        <span class="arrow img-box abs y-middle">
+                                        <img th:src="@{/img/arrow_bottom_999999.svg}" alt="">
+                                    </span>
+                                    </div>
+                                </li>
+                            </ul>
+                        </li>
+                    </ul>
+
+                        <button type="submit" class="w100per btn-type-1 mt80">
+                            팀 등록
+                        </button>
+
+                </div>
+            </div>
+        </div>
+    </form>
+</div>
+</html>
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+
+        // 이미지 미리보기 함수
+        function previewFile() {
+            var fileInput = $("#emblem_img")[0];
+            var file = fileInput.files[0];
+
+            if (file) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    // 이미지 미리보기 업데이트
+                    $("#previewImage").attr("src", e.target.result);
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // 파일 선택 다이얼로그 열기
+        $("#editIcon").click(function () {
+            $("#emblem_img").click();
+        });
+        // 파일 선택이 변경되었을 때 이미지 미리보기 업데이트
+        $("#emblem_img").change(function () {
+            previewFile();
+            if ($("#emblem_img")[0].files.length === 0) {
+                $("#previewImage").removeAttr("src");
+                // 이미지가 선택되지 않았을 때 profileImgUrl을 null로 설정
+                // $("input[name='profileImage']").val(""); // 추가된 부분
+            }
+        });
+
+        // 이미지가 없는 경우 기본 이미지로 설정
+        $(window).on('load', function () {
+            var emblemImg = $("#emblem_img")[0];
+            if (emblemImg && emblemImg.files && emblemImg.files.length === 0) {
+                $("#previewImage").attr("src", "/img/emblem_img.svg");
+            }
+        });
+
+        // 기본 이미지로 변경 버튼 클릭 시 처리
+        $("#resetImageBtn").click(function () {
+            // 파일 선택 input 초기화
+            $("#emblem_img").val("");
+            // 미리보기 이미지를 기본 이미지로 변경
+            $("#previewImage").attr("src", "/img/emblem_img.svg");
+            // 서버에 null 값을 전송
+            $("input[name='profileImage']").val("");
+        });
+
+        // 중복 확인 버튼 클릭 시 처리
+        $("#checkTeamNameBtn").click(function () {
+            var teamName = $("#teamName").val();
+
+            $.ajax({
+                type: "GET",
+                url: "/team/check_teamname",
+                data: {"teamName": teamName},
+                cache: false,
+                success: function (data) {
+                    if (teamName != null) {
+                        updateUsernameMessage(data, true);
+                    } else {
+                        updateUsernameMessage(data, false);
+                    }
+                },
+                error: function (xhr, status, error) {
+                    var errorMessage = "팀명을 다시 입력하세요.";
+                    if (xhr.status === 409) {
+                        errorMessage = "이미 사용 중인 팀명입니다.";
+                    }
+                    updateUsernameMessage(errorMessage, false);
+                }
+            });
+        });
+
+        // 팀 등록 폼 서브밋 함수
+        function updateUsernameMessage(message, isSuccess) {
+            // 팀명 중복 확인 결과 메시지 업데이트
+            const messageBox = $("#checkTeamName").find(".message-box");
+
+            // isSuccess 값에 따라 메시지 색상 변경
+            if (isSuccess) {
+                messageBox.removeClass("error-text").addClass("confirm-text");
+                messageBox.css("color", "#009521"); // 성공 시 색상
+            } else {
+                messageBox.removeClass("confirm-text").addClass("error-text");
+                messageBox.css("color", "#CC0000"); // 실패 시 색상
+            }
+
+            // 결과 메시지 업데이트
+            messageBox.text(message);
+        }
+
+
+        $(document).ready(function () {
+
+            // "팀 등록" 버튼에 대한 클릭 이벤트 핸들러 등록
+            $("#teamCreate").submit(function (event) {
+                // 기본 동작 방지
+                event.preventDefault();
+                // 팀 등록 폼 서브밋 함수 호출
+                submitTeamRegistrationForm();
+            });
+
+            // 팀 등록 폼 서브밋 함수
+            function submitTeamRegistrationForm() {
+                // 팀명 입력값 확인
+                var teamName = $("input[name='teamName']").val();
+                var level = $("#level").val();
+                var area = $("#area").val();
+                if (!teamName || !level || !area) {
+                    alert("다시 입력해 주세요.");
+                    return; // 데이터 없으면 함수 중단
+                }
+
+                var formData = new FormData($("#teamCreate")[0]);
+
+                // 팀 ID 가져오기
+                var teamId = "${team.id}";
+
+                console.log(teamId)
+                $.ajax({
+                    type: "POST",
+                    url: "/team/team_detail/" + teamId,
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    cache: false,
+                    success: function (data) {
+                        alert("팀 등록이 완료되었습니다.");
+                        // 성공 응답에서 리다이렉트 URL을 받아서 페이지를 리다이렉트
+                        window.location.href = data;
+                    },
+                    error: function (xhr, status, error) {
+                        console.log("팀 등록 실패");
+                        alert("팀 등록에 실패했습니다.");
+                    }
+                });
+            }
+        })
+    });
+</script>

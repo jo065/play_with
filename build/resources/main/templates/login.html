@@ -1,7 +1,7 @@
 <html layout:decorate="~{/common/layout}">
 <div layout:fragment="content">
 
-    <form th:action="@{/user/login}" method="post" onsubmit="return frm_check();">
+    <form th:action="@{/user/login}" method="post" onsubmit="return box_check();">
         <div class="login-area login-cnt-area w100per rel zi1">
             <div class="con w100per">
                 <h1 class="title-text lh120 tb tac wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">로그인</h1>
@@ -55,7 +55,7 @@
         </div>
     </form>
 
-    <!-- 아이디 기억하기   -->
+    <!-- 아이디 저장 -->
     <script src="//code.jquery.com/jquery-1.11.0.min.js"></script>
 
     <script type="text/javascript">
@@ -63,7 +63,7 @@
             fnInit();
         });
 
-        function frm_check() {
+        function box_check() {
             saveid();
         }
 
@@ -120,6 +120,10 @@
                 expdate.setTime(expdate.getTime() - 1000 * 3600 * 24 * 30);
                 setCookie("saveid", $("#username").val(), expdate);
             }
+        }
+        let message = "[[${msg}]]";
+        if(message != ""){
+            alert(message);
         }
     </script>
 </div>

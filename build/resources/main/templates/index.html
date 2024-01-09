@@ -1,6 +1,7 @@
 <html layout:decorate="~{/common/layout}">
-<div layout:fragment="content">
-
+<div layout:fragment="content" class="main-page">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
     <!-- 메인 비주얼 영역 -->
     <div class="main-visual-area w100per rel zi1">
         <div class="swiper-box wh100per rel zi1">
@@ -58,12 +59,16 @@
                 용병 매칭을 이용해 보세요!<br>
                 자도 OK, 친구랑 같이도 OK!
             </p>
-            <div th:if="${type1Count != 0}" class="matching-list-area inner wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s">
+            <div class="matching-list-area inner wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s">
                 <div class="swiper-box wh100per rel zi1">
                     <div class="swiper-2 swiper">
                         <ul class="swiper-wrapper tab-menu-box-1">
-                            <li class="swiper-slide">
-                                <a href="#tab1-1" class="active c999 lh140 tac">12월 11일<br>월요일</a>
+                            <li class="swiper-slide" th:each="matchingDate, loop : ${matchingDates}">
+                                <a th:href="@{|#tab1-${loop.count}|}"
+                                   th:class="${loop.first} ? 'active c999 tac' : 'c999 tac'">
+                                    <span class="lh140" th:text="${matchingDate.gameDate != null ? #temporals.format(matchingDate.gameDate, 'MM월 dd일') : ''}"></span>
+                                    <span class="lh140" th:text="${matchingDate.gameDate != null ? #temporals.format(matchingDate.gameDate, 'EEEE') : ''}"></span>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -72,8 +77,8 @@
                 </div>
                 <div class="select-area flex aic g24 mt40">
                     <div class="select-type-1 rel">
-                        <select id="" name="">
-                            <option value="">모든 지역</option>
+                        <select id="optionAreaSelect" name="area" class="option-select">
+                            <option value="all">모든 지역</option>
                             <option value="서울">서울</option>
                             <option value="대전">대전</option>
                             <option value="부산">부산</option>
@@ -83,19 +88,23 @@
                         </span>
                     </div>
                     <div class="select-type-1 rel">
-                        <select id="" name="">
-                            <option value="모든 시간">모든 시간</option>
-                            <option value="10시">10시</option>
-                            <option value="11시">11시</option>
-                            <option value="12시">12시</option>
+                        <select id="optionTimeSelect" name="gameTime" class="option-select">
+                            <option value="all">모든 시간</option>
+                            <option value="18">18시</option>
+                            <option value="19">19시</option>
+                            <option value="20">20시</option>
+                            <option value="21">21시</option>
+                            <option value="22">22시</option>
+                            <option value="23">23시</option>
+                            <option value="24">24시</option>
                         </select>
                         <span class="arrow img-box abs y-middle">
                             <img th:src="@{/img/arrow_bottom_777.svg}" alt="아래 화살표">
                         </span>
                     </div>
                     <div class="select-type-1 rel">
-                        <select id="" name="">
-                            <option value="모든 시간">모든 난이도</option>
+                        <select id="optionLevelSelect" name="level" class="option-select">
+                            <option value="all">모든 난이도</option>
                             <option value="하">하</option>
                             <option value="중">중</option>
                             <option value="상">상</option>
@@ -105,37 +114,39 @@
                         </span>
                     </div>
                 </div>
-                <ul class="tab-cnt-box-1 mt20">
-                    <li id="tab1-1">
+                <ul class="tab-cnt-box-1 mt20" id="matchingsArea">
+                    <li th:each="matchingDate, loop : ${matchingDates}" th:id="@{|tab1-${loop.count}|}">
                         <ul class="matching-list-box">
-                            <li th:each="matching : ${matchingList}" th:if="${matching.matchingType.toString() == 'TYPE_1'}">
-                                <a href="" class="flex aic jcsb">
+                            <li th:each="matching : ${filteredMatchings1}" th:if="${loop.count == matching.matchingDate.id}">
+                                <a th:href="@{|/matching/detail/${matching.id}|}" class="flex aic jcsb">
                                     <div class="left-box flex aic g40">
                                         <div class="flex aic g20">
-                                            <button class="favor-box img-box w24" id="favor_btn">
+                                            <button class="favor-box img-box w24" id="favor_btn" th:data-matching-id="${matching.id}" th:classappend="${!matching?.wishLists.?[siteUser?.username == @rq.member.username].isEmpty()} ? 'active' : ''">
                                                 <img th:src="@{/img/ico_heart.svg}" alt="">
                                             </button>
-                                            <span class="time-text f18" th:text="${matching.gameTime}"></span>
+                                            <span class="time-text f18" th:text="${matching.gameTime}" style="width: 50px;"></span>
                                         </div>
                                         <div class="text-box flex aic g8">
                                             <span th:if="${matching.level} == '하'" class="difficulty-text f16 type-1" th:text="${matching.level}"></span>
                                             <span th:if="${matching.level} == '중'" class="difficulty-text f16 type-2" th:text="${matching.level}"></span>
                                             <span th:if="${matching.level} == '상'" class="difficulty-text f16 type-3" th:text="${matching.level}"></span>
-                                            <span class="location-text f18" th:text="${matching.area} + ' ' + ${matching.betel}"></span>
+                                            <span class="location-text f18" th:text="${matching.stadium.area} + ' ' + ${matching.stadium.name}"></span>
                                         </div>
                                     </div>
-                                    <span class="situation-box tac f16 tb lh140 type-1">용병 모집 중<br>0 / 14</span>
-                                    <span class="situation-box tac f16 tb lh140 type-2">용병 모집 완료<br>14 / 14</span>
+<!--                                    원래 코드-->
+<!--                                    <span class="situation-box tac f16 tb lh140 type-1" th:if="${#lists.size(matching.userList) < 14}" th:utext="${'용병 모집 중' + '<br>' + #lists.size(matching.userList) + ' / 14'}"></span>-->
+<!--                                    <span class="situation-box tac f16 tb lh140 type-2" th:if="${#lists.size(matching.userList) == 14}">용병 모집 완료<br>14 / 14</span>-->
+
+                                    <!--발표할 때 시간관계상 코드 수정(14명 -> 4명)-->
+                                    <span class="situation-box tac f16 tb lh140 type-1" th:if="${#lists.size(matching.userList) < 4}" th:utext="${'용병 모집 중' + '<br>' + #lists.size(matching.userList) + ' / 4'}"></span>
+                                    <span class="situation-box tac f16 tb lh140 type-2" th:if="${#lists.size(matching.userList) == 4}">용병 모집 완료<br>4 / 4</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                 </ul>
             </div>
-            <div th:if="${type1Count == 0}" class="matching-none-area wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s">
-                <p class="tac tb c333">현재 진행중인 매치가 없습니다.</p>
-            </div>
-            <div class="btn-box-type-1 flex jcc wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">
+            <div sec:authorize="isAuthenticated()" th:if="${@rq.member.rating == 2}" class="btn-box-type-1 flex jcc wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">
                 <a th:href="@{/matching/create}" class="btn-type-1">매칭 등록</a>
             </div>
         </div>
@@ -151,12 +162,16 @@
                 구장에 연락하기 번거로웠죠?<br>
                 이젠 편하게 팀 매칭 시스템을 이용해 보세요!
             </p>
-            <div th:if="${type2Count != 0}" class="matching-list-area inner wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s">
+            <div class="matching-list-area inner wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s">
                 <div class="swiper-box wh100per rel zi1">
                     <div class="swiper-3 swiper">
                         <ul class="swiper-wrapper tab-menu-box-2">
-                            <li class="swiper-slide">
-                                <a href="#tab2-1" class="active c999 lh140 tac">12월 11일<br>월요일</a>
+                            <li class="swiper-slide" th:each="matchingDate, loop : ${matchingDates}">
+                                <a th:href="@{|#tab2-${loop.count}|}"
+                                   th:class="${loop.first} ? 'active c999 tac' : 'c999 tac'">
+                                    <span class="lh140" th:text="${matchingDate.gameDate != null ? #temporals.format(matchingDate.gameDate, 'MM월 dd일') : ''}"></span>
+                                    <span class="lh140" th:text="${matchingDate.gameDate != null ? #temporals.format(matchingDate.gameDate, 'EEEE') : ''}"></span>
+                                </a>
                             </li>
                         </ul>
                     </div>
@@ -165,8 +180,8 @@
                 </div>
                 <div class="select-area flex aic g24 mt40">
                     <div class="select-type-1 rel">
-                        <select id="" name="">
-                            <option value="">모든 지역</option>
+                        <select id="optionAreaSelect2" name="area" class="option-select2">
+                            <option value="all">모든 지역</option>
                             <option value="서울">서울</option>
                             <option value="대전">대전</option>
                             <option value="부산">부산</option>
@@ -176,19 +191,23 @@
                         </span>
                     </div>
                     <div class="select-type-1 rel">
-                        <select id="" name="">
-                            <option value="모든 시간">모든 시간</option>
-                            <option value="10시">10시</option>
-                            <option value="11시">11시</option>
-                            <option value="12시">12시</option>
+                        <select id="optionTimeSelect2" name="gameTime" class="option-select2">
+                            <option value="all">모든 시간</option>
+                            <option value="18">18시</option>
+                            <option value="19">19시</option>
+                            <option value="20">20시</option>
+                            <option value="21">21시</option>
+                            <option value="22">22시</option>
+                            <option value="23">23시</option>
+                            <option value="24">24시</option>
                         </select>
                         <span class="arrow img-box abs y-middle">
                             <img th:src="@{/img/arrow_bottom_777.svg}" alt="아래 화살표">
                         </span>
                     </div>
                     <div class="select-type-1 rel">
-                        <select id="" name="">
-                            <option value="모든 시간">모든 난이도</option>
+                        <select id="optionLevelSelect2" name="level" class="option-select2">
+                            <option value="all">모든 난이도</option>
                             <option value="하">하</option>
                             <option value="중">중</option>
                             <option value="상">상</option>
@@ -199,36 +218,38 @@
                     </div>
                 </div>
                 <ul class="tab-cnt-box-2 mt20">
-                    <li id="tab2-1">
+                    <li th:each="matchingDate, loop : ${matchingDates}" th:id="@{|tab2-${loop.count}|}">
                         <ul class="matching-list-box">
-                            <li th:each="matching : ${matchingList}" th:if="${matching.matchingType.toString() == 'TYPE_2'}">
-                                <a href="" class="flex aic jcsb">
+                            <li th:each="matching : ${filteredMatchings2}" th:if="${loop.count == matching.matchingDate.id}">
+                                <a th:href="@{|/matching/detail/${matching.id}|}" class="flex aic jcsb">
                                     <div class="left-box flex aic g40">
                                         <div class="flex aic g20">
                                             <button class="favor-box img-box w24" id="favor_btn">
                                                 <img th:src="@{/img/ico_heart.svg}" alt="">
                                             </button>
-                                            <span class="time-text f18" th:text="${matching.gameTime}"></span>
+                                            <span class="time-text f18" th:text="${matching.gameTime}" style="width: 50px;"></span>
                                         </div>
                                         <div class="text-box flex aic g8">
                                             <span th:if="${matching.level} == '하'" class="difficulty-text f16 type-1" th:text="${matching.level}"></span>
                                             <span th:if="${matching.level} == '중'" class="difficulty-text f16 type-2" th:text="${matching.level}"></span>
                                             <span th:if="${matching.level} == '상'" class="difficulty-text f16 type-3" th:text="${matching.level}"></span>
-                                            <span class="location-text f18" th:text="${matching.area} + ' ' + ${matching.betel}"></span>
+                                            <span class="location-text f18" th:text="${matching.stadium.area} + ' ' + ${matching.stadium.name}"></span>
                                         </div>
                                     </div>
-                                    <span class="situation-box tac f16 tb lh140 type-1">팀 모집 중<br>0 / 2</span>
-                                    <span class="situation-box tac f16 tb lh140 type-2">팀 모집 완료<br>2 / 2</span>
+                                    <!--                                    원래 코드-->
+                                    <!--                                    <span class="situation-box tac f16 tb lh140 type-1" th:if="${#lists.size(matching.userList) < 14}" th:utext="${'용병 모집 중' + '<br>' + #lists.size(matching.userList) + ' / 14'}"></span>-->
+                                    <!--                                    <span class="situation-box tac f16 tb lh140 type-2" th:if="${#lists.size(matching.userList) == 14}">용병 모집 완료<br>14 / 14</span>-->
+
+                                    <!--발표할 때 시간관계상 코드 수정(14명 -> 4명)-->
+                                    <span class="situation-box tac f16 tb lh140 type-1" th:if="${#lists.size(matching.userList) < 2}" th:utext="${'팀 모집 중' + '<br>' + #lists.size(matching.userList) + ' / 2'}"></span>
+                                    <span class="situation-box tac f16 tb lh140 type-2" th:if="${#lists.size(matching.userList) == 2}">팀 모집 완료<br>2 / 2</span>
                                 </a>
                             </li>
                         </ul>
                     </li>
                 </ul>
             </div>
-            <div th:if="${type2Count == 0}" class="matching-none-area wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s">
-                <p class="tac tb c333">현재 진행중인 매치가 없습니다.</p>
-            </div>
-            <div class="btn-box-type-1 flex jcc wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">
+            <div sec:authorize="isAuthenticated()" th:if="${@rq.member.rating == 2}" class="btn-box-type-1 flex jcc wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">
                 <a th:href="@{/matching/create}" class="btn-type-1">매칭 등록</a>
             </div>
         </div>
@@ -263,7 +284,7 @@
             <div class="matching-none-area wow fadeInUp" data-wow-delay="0.9s" data-wow-duration="0.6s" th:if="${qnaList.size() == 0}">
                 <p class="tac tb c333">등록된 자주 묻는 질문이 없습니다.</p>
             </div>
-            <div class="btn-box-type-1 flex jcc wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">
+            <div sec:authorize="isAuthenticated()" th:if="${@rq.member.rating == 2}" class="btn-box-type-1 flex jcc wow fadeInUp" data-wow-delay="0.3s" data-wow-duration="0.6s">
                 <a th:href="@{/qna/list}" class="btn-type-1">질문 관리</a>
             </div>
         </div>
